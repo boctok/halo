@@ -380,7 +380,7 @@ sensor:
       id: "no2"
       filters:
         # Offset by 16
-        - offset: -16
+        - offset: -0.16
       on_value:
         then:
           - lvgl.label.update:
