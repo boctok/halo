@@ -29,8 +29,19 @@ jobs:
       - name: Get Version
         id: get_version
         run: |
-          version=$(awk '/substitutions:/ {found=1} found && /version:/ {print $2; exit}' E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/Halo_EPD-Core.yaml | tr -d '"')
-          echo "project_version=$version" >> $GITHUB_ENV
+          if [ -f "E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/Halo_EPD-Core.yaml" ]; then
+            version=$(awk '/substitutions:/ {found=1} found && /version:/ {print $2; exit}' E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/Halo_EPD-Core.yaml | tr -d '"')
+            if [ -n "$version" ]; then
+              echo "project_version=$version" >> $GITHUB_ENV
+              echo "Version extracted: $version"
+            else
+              echo "Error: Could not extract version from file"
+              exit 1
+            fi
+          else
+            echo "Error: Core file not found"
+            exit 1
+          fi
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
@@ -45,16 +56,64 @@ jobs:
 
   build-firmware:
     name: Build And Release
-    needs: create-release
-    uses: esphome/workflows/.github/workflows/build.yml@main
-    with:
-      files: |
-        E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/Halo_EPD.yaml
-      esphome-version: stable
-      combined-name: firmware
-      release-summary: ${{ github.event.release.body || '' }}
-      release-url: ${{ github.event.release.html_url || '' }}
-      release-version: ${{ github.event.release.tag_name || github.ref_name || 'dev' }}
+    needs: [create-release, build-site]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4.1.7
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install ESPHome
+        run: |
+          pip install esphome
+          
+      - name: Build Firmware
+        run: |
+          cd E-Paper/Waveshare_BWR/V1/Firmware/ESPHome
+          esphome compile Halo_EPD.yaml
+          echo "Build completed. Checking for firmware files..."
+          find .esphome/build -name "*.bin" -type f
+          
+      - name: Debug - Show Build Directory
+        run: |
+          cd E-Paper/Waveshare_BWR/V1/Firmware/ESPHome
+          echo "Build directory structure:"
+          ls -la .esphome/ || echo "No .esphome directory found"
+          ls -la .esphome/build/ || echo "No build directory found"
+          if [ -d ".esphome/build" ]; then
+            echo "Build subdirectories:"
+            ls -la .esphome/build/
+            for dir in .esphome/build/*/; do
+              if [ -d "$dir" ]; then
+                echo "Contents of $dir:"
+                ls -la "$dir"
+                if [ -d "$dir.pioenvs" ]; then
+                  echo "Contents of $dir.pioenvs:"
+                  ls -la "$dir.pioenvs"
+                  for pio_dir in "$dir.pioenvs"/*/; do
+                    if [ -d "$pio_dir" ]; then
+                      echo "Contents of $pio_dir:"
+                      ls -la "$pio_dir"
+                    fi
+                  done
+                fi
+              fi
+            done
+          fi
+          
+      - name: Upload Firmware Artifact
+        uses: actions/upload-artifact@v4.3.6
+        with:
+          name: firmware-epd
+          path: |
+            E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/.esphome/build/*/.pioenvs/*/firmware.factory.bin
+            E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/.esphome/build/*/.pioenvs/*/firmware.bin
+            E-Paper/Waveshare_BWR/V1/Firmware/ESPHome/.esphome/build/*/*.bin
+          if-no-files-found: error
 
   build-site:
     name: Build Site
@@ -91,13 +150,25 @@ jobs:
       - name: Download Firmware Artifact
         uses: actions/download-artifact@v4.1.8
         with:
-          name: firmware
+          name: firmware-epd
           path: firmware
+
+      - name: Check Firmware Artifacts
+        run: |
+          echo "Checking firmware artifacts..."
+          ls -la firmware/ || echo "No firmware directory found"
+          if [ -d "firmware" ]; then
+            echo "Firmware files found:"
+            find firmware -type f
+          else
+            echo "No firmware artifacts downloaded"
+            exit 1
+          fi
 
       - name: Copy Firmware and Manifest
         run: |-
           mkdir -p output/firmware
-          cp -r firmware/${{ needs.build-firmware.outputs.version }}/* output/firmware/
+          cp -r firmware/* output/firmware/
 
       - name: Download Site Artifact
         uses: actions/download-artifact@v4.1.8
