@@ -138,6 +138,8 @@ interval:
             - lambda: 'id(cycleCounter) += 1;'              
 
 api:
+  encryption:
+    key: "RAe4RFyB2pXWYs0A5AQD7Le/r1Hp6Rl1X38LcCzf2WA="
   on_client_connected:
       - delay: 1s
       - light.turn_off: rgb_light
