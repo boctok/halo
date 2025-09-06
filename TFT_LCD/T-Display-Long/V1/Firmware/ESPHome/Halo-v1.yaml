@@ -1,5 +1,5 @@
 esphome:
-  name: halo-v1
+  name: halo
   friendly_name: Halo Air Quality Sensor
   name_add_mac_suffix: true
   platformio_options:
@@ -16,11 +16,12 @@ esphome:
     version: "${version}"
 
 dashboard_import:
-  package_import_url: github://yashmulgaonkar/halo/TFT_LCD/T-Display-Long/V1/Firmware/ESPHome/Halo-v1.yaml@main
+  package_import_url: github://boctok/halo/TFT_LCD/T-Display-Long/V1/Firmware/ESPHome/Halo-v1.yaml@main
   import_full_config: true
 
 ota:
   - platform: esphome
+    password: "3156ba9e5c17431afffa3df0c85b04a5"
     id: ota_default
 
 wifi:
@@ -29,11 +30,12 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Halo Hotspot"
+    ssid: "Halo Fallback Hotspot"
+    password: "RB9UZCpQMuuI"
 
 packages:
   remote_package:
-    url: https://github.com/yashmulgaonkar/halo/
+    url: https://github.com/boctok/halo/
     ref: main
     files:
       - TFT_LCD/T-Display-Long/V1/Firmware/ESPHome/Halo-v1-Core.yaml
