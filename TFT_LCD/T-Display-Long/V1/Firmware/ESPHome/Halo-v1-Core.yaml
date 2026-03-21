@@ -965,7 +965,10 @@ light:
     effects:
       - addressable_rainbow:
           name: Addressable Rainbow
-
+      - addressable_rainbow:
+          name: "Rainbow Effect With Custom Values"
+          speed: 10
+          width: 50
   - platform: monochromatic
     output: backlight
     name: "Display Backlight"
