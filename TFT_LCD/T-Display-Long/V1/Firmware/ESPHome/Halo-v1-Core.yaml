@@ -15,13 +15,7 @@ esp32:
   cpu_frequency: 240MHz
   framework:
     type: esp-idf
-    version: 5.1.2  # Using a known stable version for S3 displays
-    advanced:
-      enable_idf_experimental_features: true
-  # These flags force the S3 to use its high-speed memory for the display
-      extra_build_flags:
-       - -DBOARD_HAS_PSRAM
-       - -mfix-esp32-psram-cache-issue
+    version: 5.1.2
 
 esp32_improv:
   authorizer: none
