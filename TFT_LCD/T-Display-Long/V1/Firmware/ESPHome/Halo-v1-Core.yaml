@@ -168,9 +168,11 @@ i2c:
   - sda: 9
     scl: 48
     id: lily_i2c
+    frequency: 100kHz  # <--- Add this
   - sda: 15
     scl: 10
     id: touch_i2c
+    frequency: 100kHz  # <--- Add this
 
 output:
   - platform: ledc
