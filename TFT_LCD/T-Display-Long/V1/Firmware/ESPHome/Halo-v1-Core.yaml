@@ -20,6 +20,12 @@ esp32:
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
       CONFIG_SPIRAM_MODE_OCT: y
       CONFIG_ESPTOOLPY_FLASHSIZE_16MB: y
+    # MOVE BUILD FLAGS HERE
+    advanced:
+      ignore_efuse_mac_crc: false
+    build_flags:
+      - "-DBOARD_HAS_PSRAM"
+      - "-mfix-esp32-psram-cache-issue"
     
 esp32_improv:
   authorizer: none
