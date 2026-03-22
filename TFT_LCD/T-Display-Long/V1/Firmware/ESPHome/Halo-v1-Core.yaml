@@ -19,9 +19,9 @@ esp32:
     advanced:
       enable_idf_experimental_features: true
   # These flags force the S3 to use its high-speed memory for the display
-  extra_build_flags:
-    - -DBOARD_HAS_PSRAM
-    - -mfix-esp32-psram-cache-issue
+      extra_build_flags:
+       - -DBOARD_HAS_PSRAM
+       - -mfix-esp32-psram-cache-issue
 
 esp32_improv:
   authorizer: none
