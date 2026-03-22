@@ -14,8 +14,6 @@ esp32:
   flash_size: 16MB
   cpu_frequency: 240MHz
   # THIS IS THE CORRECT 2026 HOME FOR ADVANCED SETTINGS
-  advanced:
-    ignore_efuse_mac_crc: false
   framework:
     type: esp-idf
     version: 5.4.2
