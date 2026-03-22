@@ -13,16 +13,20 @@ esp32:
   variant: esp32s3
   flash_size: 16MB
   cpu_frequency: 240MHz
-  # Removing the specific platform_version Git link to let ESPHome 
-  # pick the most compatible local platform for 5.3.0
   framework:
     type: esp-idf
-    version: 5.3.0  # <--- This is the key
+    version: 5.3.0
     sdkconfig_options:
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
       CONFIG_SPIRAM_MODE_OCT: y
-      # This ensures the new framework handles the 16MB flash correctly
       CONFIG_ESPTOOLPY_FLASHSIZE_16MB: y
+  # This is the correct home for build_flags
+  advanced:
+    ignore_efuse_mac_crc: false
+  build_flags:
+    - "-DBOARD_HAS_PSRAM"
+    - "-mfix-esp32-psram-cache-issue"
+    
 esp32_improv:
   authorizer: none
 
